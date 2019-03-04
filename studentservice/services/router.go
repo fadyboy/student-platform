@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// NewRouter - function that creates and returns a router object
 func NewRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 

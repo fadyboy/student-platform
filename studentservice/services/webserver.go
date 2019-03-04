@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// StartWebserver - function to start the webserver
 func StartWebserver(port string) {
 	router := NewRouter()
 	http.Handle("/", router)

@@ -2,8 +2,11 @@ package services
 
 import (
 	"net/http"
+
+	"github.com/student-plaform/studentservice/endpoints"
 )
 
+// Route - struct for the route object
 type Route struct {
 	Name        string
 	Method      string
@@ -11,6 +14,7 @@ type Route struct {
 	HandlerFunc http.HandlerFunc
 }
 
+// Routes - type for routes
 type Routes []Route
 
 var routes = Routes{
@@ -22,5 +26,11 @@ var routes = Routes{
 			res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 			res.Write([]byte("{\"status\":\"success\"}"))
 		},
+	},
+	Route{
+		"CreateStudent",
+		"POST",
+		"/students",
+		endpoints.CreateStudent,
 	},
 }
