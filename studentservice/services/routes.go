@@ -22,15 +22,18 @@ var routes = Routes{
 		"GetStudent",
 		"GET",
 		"/students/{studentId}",
-		func(res http.ResponseWriter, req *http.Request) {
-			res.Header().Set("Content-Type", "application/json; charset=UTF-8")
-			res.Write([]byte("{\"status\":\"success\"}"))
-		},
+		endpoints.GetStudent,
 	},
 	Route{
 		"CreateStudent",
 		"POST",
 		"/students",
 		endpoints.CreateStudent,
+	},
+	Route{
+		"ListStudents",
+		"GET",
+		"/students",
+		endpoints.ListAllStudents,
 	},
 }
