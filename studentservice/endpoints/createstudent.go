@@ -2,7 +2,9 @@ package endpoints
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
+	"time"
 
 	"github.com/student-platform/studentservice/dbclient"
 	"github.com/student-platform/studentservice/models"
@@ -15,38 +17,45 @@ func CreateStudent(res http.ResponseWriter, req *http.Request) {
 	defer db.Close()
 
 	res.Header().Set("Content-Type", "application/json;charset=UTF-8")
-	studentDetails := &models.Student{}
-	err := json.NewDecoder(req.Body).Decode(&studentDetails)
-	if err != nil {
-		http.Error(res, "Bad request. Please check parameters of request", 400)
+
+	if err := req.ParseForm(); err != nil {
+		http.Error(res, "Bad request. Error processing form data", 400)
+		return
 	}
-	firstname := studentDetails.Firstname
-	lastname := studentDetails.Lastname
-	gender := studentDetails.Gender
-	parentorguardian := studentDetails.ParentOrGuardian
-	address := studentDetails.Address
-	contactNumber := studentDetails.ContactNumber
+	firstname := req.FormValue("firstname")
+	lastname := req.PostFormValue("lastname")
+	gender := req.PostFormValue("gender")
+	dateOfBirth, err := convertDateOfBirth(req.PostFormValue("dateofbirth"))
+	if err != nil {
+		http.Error(res, "Error processing date of birth", 400)
+		return
+	}
 
-	// vars := mux.Vars(req)
-	// firstname := vars["firsname"]
-	// fmt.Println("name ", firstname)
-	// lastname := vars["lastname"]
-	// gender := vars["gender"]
-	// dateOfBirth, _ := date.Parse(vars["dateofbirth"], "yyyy-mm-dd")
-	// parentGuardian := vars["parentorguardian"]
-	// address := vars["address"]
-	// contactNumber, _ := strconv.ParseInt(vars["contactnumber"], 10, 64)
+	parentorguardian := req.PostFormValue("parentorguardian")
+	address := req.PostFormValue("address")
+	contactNumber := req.PostFormValue("contactnumber")
 
-	db.Create(&models.Student{
-		Firstname: firstname,
-		Lastname:  lastname,
-		Gender:    gender,
-		// DateOfBirth:      dateOfBirth,
+	student := &models.Student{
+		Firstname:        firstname,
+		Lastname:         lastname,
+		Gender:           gender,
+		DateOfBirth:      dateOfBirth,
 		ParentOrGuardian: parentorguardian,
 		Address:          address,
 		ContactNumber:    contactNumber,
-	})
+	}
+	db.Save(&student)
 
-	json.NewEncoder(res).Encode(studentDetails)
+	json.NewEncoder(res).Encode(student)
 
+}
+
+// Helper function to convert date of birth which is a string to a time.Time type
+func convertDateOfBirth(dateOfBirth string) (time.Time, error) {
+	convertedBirthDate, err := time.Parse("2006-01-02", dateOfBirth)
+	if err != nil {
+		log.Printf("Error converting date of birth - %s", err)
+	}
+
+	return convertedBirthDate, err
 }
